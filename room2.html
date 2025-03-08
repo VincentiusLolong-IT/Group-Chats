@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple WebChat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chat {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #chatbox {
+            height: 300px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            overflow-y: scroll;
+            margin-top: 10px;
+            background-color: #f9f9f9;
+        }
+        #room, #username, #message {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <input id="username" type="text" placeholder="Username">
+        <input id="message" type="text" placeholder="Message">
+        <input id="image" type="file" accept="image/*">
+        <button onclick="sendMessage()">Send</button>
+        <div id="chatbox"></div>
+    </div>
+
+    <script>
+        let socket;
+        let room  = "2";
+  
+                socket = new WebSocket(`ws://localhost:8000/ws?room=${room}`);
+
+                socket.onopen = function() {
+                    console.log("Connected to WebSocket server");
+                };
+
+                socket.onmessage = function(event) {
+                    let msg = JSON.parse(event.data);
+                    console.log("Received message: ", msg);
+                    let chatbox = document.getElementById('chatbox');
+                    let newMessage = document.createElement('div');
+
+                    newMessage.innerText = `${msg.username}: ${msg.message}`;
+                    if (msg.image) {
+                        let img = document.createElement('img');
+                        img.src = msg.image;
+                        img.style.maxWidth = '200px';
+                        img.style.display = 'block';
+                        newMessage.appendChild(img);
+                    }
+
+                    chatbox.appendChild(newMessage);
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                };
+
+                socket.onerror = function(error) {
+                    console.log("WebSocket error: ", error);
+                };
+
+                socket.onclose = function(event) {
+                    console.log("WebSocket connection closed: ", event);
+                };
+
+        
+
+        function sendMessage() {
+            let username = document.getElementById('username').value;
+            let message = document.getElementById('message').value;
+            let imageFile = document.getElementById('image').files[0];
+
+            if (username && message) {
+                let msg = { username: username, message: message, room: room};
+
+                if (imageFile) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        msg.image = e.target.result.split(',')[1]; // Only send base64 data (not the data URL)
+                        console.log("Sending message with image: ", msg);
+                        socket.send(JSON.stringify(msg));
+                    };
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    console.log("Sending message: ", msg);
+                    socket.send(JSON.stringify(msg));
+                }
+            } else {
+                alert("Please enter both username and message");
+            }
+        }
+    </script>
+</body>
+</html>
