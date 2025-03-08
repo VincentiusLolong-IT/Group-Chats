@@ -1,2 +1,8 @@
-# weboscket-room-go
-websocket-roomChat using changestream real time signal receiver data from collections
+# WebSocket Room in Go
+
+A real-time WebSocket chat application using MongoDB Change Streams to receive data updates from collections.
+
+## 🚀 Technologies Used
+
+- **Go** 🟡 – WebSocket server  
+- **MongoDB Change Streams** 🍃 – Real-time data synchronization
