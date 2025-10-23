@@ -1,4 +1,4 @@
-💬 Chat Room
+💬 Group-Chats
 
 A real-time chat application where messages appear instantly as they’re sent — no page refresh needed.
 
