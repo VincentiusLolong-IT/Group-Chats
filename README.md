@@ -1,4 +1,4 @@
-# WebSocket Room in Go
+# Chat Room
 
 A real-time WebSocket chat application using MongoDB Change Streams to receive data updates from collections.
 
